@@ -6,9 +6,10 @@ Automatically selects professions for empty slots
 + Refines RAD
 + Transfers AD to one chracter (account)
 + Open rewardchest(99) per session
-+ Sell/limit items from inventory, UI controlled
-  * sell, Rank1 - 2 enchants/runestones (all)
-  * limits T1 - 3 healing potions to 10, skillkits to 50, Portable altars 80
++ Sell/limit items from inventory, partially on UI
+  * advanced "Safeguards" filters "do not sell" type (user editable list on script)
+  * Profession leveling crafted items(user editable list on script)
++ SCA rolls (coming soon)
 + etc...
 
 Website, https://greasyfork.org/scripts/7061-neverwinter-gateway-professions-robot/
