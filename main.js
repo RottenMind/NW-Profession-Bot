@@ -616,6 +616,7 @@ function _select_Gateway() { // Check for Gateway used to
 		taskName : "Leadership", // String used at the gateway
 		taskDefaultPriority : 1, // Priority to allocate free task slots: 0 - High, 1 - Medium, 2 - Low
 		taskActive : true,
+		taskDefaultSlotNum: 9,
 		taskDescription : "",
 		profiles : [{
 				profileName : "AD",
@@ -1182,7 +1183,7 @@ function _select_Gateway() { // Check for Gateway used to
 					5 : ["Alchemy_Tier1_Experiment_Rank6", "Alchemy_Tier1_Experimentation_Rank5", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
 					6 : ["Alchemy_Tier1_Experiment_Rank7", "Alchemy_Tier1_Experimentation_Rank6", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
 					7 : ["Alchemy_Tier2_Experiment_Rank08", "Alchemy_Tier2_Experimentation_Rank07", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
-					8 : ["Alchemy_Tier2_Experiment_Rank09", "Alchemy_Tier2_Experimentation_Rank08" /*, "Alchemy_Tier1_Refine_Basic"*/, "Alchemy_Tier1_Gather_Components"],
+					8 : ["Alchemy_Tier2_Experiment_Rank09", "Alchemy_Tier2_Experimentation_Rank08" /, "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
 					9 : ["Alchemy_Tier2_Experiment_Rank10", "Alchemy_Tier2_Experimentation_Rank09", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
 					10 : ["Alchemy_Tier2_Experiment_Rank11", "Alchemy_Tier2_Experimentation_Rank10", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
 					11 : ["Alchemy_Tier2_Experiment_Rank12", "Alchemy_Tier2_Experimentation_Rank11", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
@@ -1385,7 +1386,7 @@ function _select_Gateway() { // Check for Gateway used to
     }
 
 
-    // Profession priority list by order
+    // Profession list by order
     var tasklist = [
         definedTask["Leadership"],
         definedTask["Jewelcrafting"],
@@ -1401,6 +1402,114 @@ function _select_Gateway() { // Check for Gateway used to
         definedTask["Siege Event"],
         
     ];
+
+	var globalSettings = {        
+        scriptPaused: false,
+        scriptDebugMode: false,
+        autoLogin: false,
+        autoLoginAccount: "",
+        autoLoginPassword: "",
+    };
+        
+    // Populated at login     
+    var accountSettings = {};
+    var charSettingsTest = {};         
+	var charNameList = [];
+
+    var defaultAccountSettings = {
+        statistics: {
+        	//totalAD: 0,
+        	//totalRAD: 0,
+        	//totalgold: 0,
+        },
+        SCA: {
+            lastCycle: 0,
+        },
+        vendorSettings: {
+            vendorJunk: false,
+            vendorKitsLimit: false,
+            vendorAltarsLimit: false,
+            vendorKitsAll: false,
+            vendorAltarsAll: false,
+            vendorProfResults: false,
+            vendorPots1: false,
+            vendorPots2: false,
+            vendorPots3: false,
+            vendorPots4: false,
+        	vendorEnchR1: false,
+            vendorEnchR2: false,
+            vendorEnchR3: false,
+        },
+        professionSettings: {
+            fillOptionals: false,
+            autoPurchaseRes: false,
+            trainAssets: false,
+        },
+        generalSettings: {
+            refineAD: false,
+            openRewards: false,
+        },
+        consolidationSettings: {
+        	bankName: "",
+        	transferRate: 100,
+        	consolidate: false,
+            minCharBalance: 10000,
+            minToTransfer: 50000,
+        },
+    };
+        
+    var defaultCharSettings = {
+        charName: "",
+        active: false,
+        overrideGlobalSettings: false,
+        statistics: {
+        	refineCounter: 0,
+        	refineCounterReset: Date.now(),
+        	astrals: 0,
+        	gold: 0,
+        	emptyBagSlots: 0,
+        },
+        vendorSettings: {
+            vendorJunk: false,
+            vendorKitsLimit: false,
+            vendorAltarsLimit: false,
+            vendorKitsAll: false,
+            vendorAltarsAll: false,
+            vendorProfResults: false,
+            vendorPots1: false,
+            vendorPots2: false,
+            vendorPots3: false,
+            vendorPots4: false,
+        	vendorEnchR1: false,
+            vendorEnchR2: false,
+            vendorEnchR3: false,
+        },
+        professionSettings: {
+            fillOptionals: false,
+            autoPurchaseRes: false,
+            trainAssets: false,
+        },
+        generalSettings: {
+            refineAD: false,
+            openRewards: false,
+        },
+        consolidationSettings: {
+            consolidate: false,
+            minCharBalance: 10000,
+            minToTransfer: 50000,
+        },
+        taskListSettigns: [],
+    };
+    //Adding taskList defaults, perhaps should be moved here permanantly from tasklist.
+    tasklist.forEach(function(task) {
+        var profileNames = [];
+        task.profiles.forEach( function(profile) { if (profile.isProfileActive) profileNames.push({name: profile.profileName, value: profile.profileName}); } ); 
+        defaultCharSettings.taskListSettigns[task.taskListName] = {};
+        defaultCharSettings.taskListSettigns[task.taskListName].taskSlots = task.taskDefaultSlotNum;
+        defaultCharSettings.taskListSettigns[task.taskListName].taskProfile =  profileNames[0].value;
+        defaultCharSettings.taskListSettigns[task.taskListName].taskPriority =  task.taskDefaultPriority;
+    });
+
 
     var priorityOptions = [{name: 'high', value: 0},{name: 'medium', value: 1},{name: 'low', value: 2}];
         
@@ -1653,7 +1762,8 @@ function _select_Gateway() { // Check for Gateway used to
         var level = unsafeWindow.client.dataModel.model.ent.main.itemassignmentcategories.categories.filter(function (entry) {
             return entry.name == prof.taskName;
         })[0].currentrank;
-        var profile = prof.profiles.filter(function( profile ) { return profile.profileName == settings[prof.taskName + charcurrent + '_profile']; });
+        var profile = prof.profiles.filter(function( profile ) { return profile.profileName == settings[prof.taskListName + charcurrent + '_profile']; });
+        console.log('Selecting profile: ' + profile[0].profileName);
         var list = profile[0].level[level];
         if (list.length <= i) {
             console.log("Nothing Found");
@@ -2241,7 +2351,7 @@ function _select_Gateway() { // Check for Gateway used to
 			};
 			/*#3, Tier2, upgrade, sell if inventory full, "TierX" is here "TX" */
 			_profitems[_profitems.length] = {
-				pattern : /^Crafted_(Jewelcrafting_Neck_Offense_2|Jewelcrafting_Waist_Offense_2|Tailoring_T2_Cloth_Shirt|T2_Cloth_Armor_Set_2|Med_Armorsmithing_T2_Chain_Armor_Set_1|Med_Armorsmithing_T2_Chain_Pants_2|Med_Armorsmithing_T2_Chain_Boots_Set_1|Med_Armorsmithing_T2_Chain_Shirt_2|Med_Armorsmithing_T2_Chain_Pants_1|Med_Armorsmithing_T2_Chain_Shirt|Hvy_Armorsmithing_T2_Plate_Armor_Set_1|Hvy_Armorsmithing_T2_Plate_Pants_2|Crafted_Tailoring_Pants_2|Tailoring_T2_Cloth_Armor_Set_1|Crafted_Tailoring_Shirt_2 |Hvy_Armorsmithing_T2_Plate_Boots_Set_1|Hvy_Armorsmithing_T2_Plate_Shirt_2|Hvy_Armorsmithing_T2_Plate_Pants_1|Hvy_Armorsmithing_T2_Shield_Set_1|Hvy_Armorsmithing_T2_Plate_Shirt|Leatherworking_T2_Leather_Shirt|Leatherworking_T2_Leather_Boots_Set_1|Leatherworking_T2_Leather_Shirt_2|Leatherworking_T2_Leather_Pants_1|Leatherworking_T2_Leather_Armor_Set_1|Leatherworking_T2_Leather_Pants_2|Leatherworking_Shirt_3_Set2|Tailoring_T2_Cloth_Armor_Set_1|Tailoring_Pants_2|Tailoring_T2_Cloth_Pants|Tailoring_T2_Cloth_Pants_2|Tailoring_T2_Cloth_Boots_Set_1|Tailoring_T2_Cloth_Shirt_2|Tailoring_T2_Cloth_Pants_1|Artificing_T2_Pactblade_Temptation_3|Artificing_T1_Icon_Virtuous_2|Weaponsmithing_T2_Dagger_2)$/,
+				pattern : /^Crafted_(Jewelcrafting_Neck_Offense_2|Jewelcrafting_Waist_Offense_2|Tailoring_T2_Cloth_Shirt|T2_Cloth_Armor_Set_2|Med_Armorsmithing_T2_Chain_Armor_Set_1|Med_Armorsmithing_Chain_Pants_2|Med_Armorsmithing_T2_Chain_Pants_2|Med_Armorsmithing_T2_Chain_Boots_Set_1|Med_Armorsmithing_T2_Chain_Shirt_2|Med_Armorsmithing_T2_Chain_Pants_1|Med_Armorsmithing_T2_Chain_Shirt|Hvy_Armorsmithing_T2_Plate_Armor_Set_1|Hvy_Armorsmithing_T2_Plate_Pants_2|Crafted_Tailoring_Pants_2|Tailoring_T2_Cloth_Armor_Set_1|Crafted_Tailoring_Shirt_2 |Hvy_Armorsmithing_T2_Plate_Boots_Set_1|Hvy_Armorsmithing_T2_Plate_Shirt_2|Hvy_Armorsmithing_T2_Plate_Pants_1|Hvy_Armorsmithing_T2_Shield_Set_1|Hvy_Armorsmithing_T2_Plate_Shirt|Leatherworking_T2_Leather_Shirt|Leatherworking_T2_Leather_Boots_Set_1|Leatherworking_T2_Leather_Shirt_2|Leatherworking_T2_Leather_Pants_1|Leatherworking_T2_Leather_Armor_Set_1|Leatherworking_T2_Leather_Pants_2|Leatherworking_Shirt_3_Set2|Tailoring_T2_Cloth_Armor_Set_1|Tailoring_Pants_2|Tailoring_T2_Cloth_Pants|Tailoring_T2_Cloth_Pants_2|Tailoring_T2_Cloth_Boots_Set_1|Tailoring_T2_Cloth_Shirt_2|Tailoring_T2_Cloth_Pants_1|Artificing_T2_Pactblade_Temptation_3|Artificing_T1_Icon_Virtuous_2|Weaponsmithing_T2_Dagger_2)$/,
 				limit : 0,
 				count : 0
 			};
@@ -2607,7 +2717,34 @@ function _select_Gateway() { // Check for Gateway used to
             });
             refineCounters = tempList;
             GM_setValue("refineCounters", JSON.stringify(refineCounters));
-            //console.log(refineCounters);
+            
+            
+            
+			// Experimental
+           	var tempAccountSetting = JSON.parse( GM_getValue("account_settings_" + accountName, "{}") ); 
+            if(!tempAccountSetting) {
+                console.log('Account settings couldn\'t be retrieved, loading defaults.');
+                tempAccountSetting = {};  
+            };
+            accountSettings = $.extend(true, {}, defaultAccountSettings, tempAccountSetting );
+    		if (JSON.stringify(accountSettings) !== GM_getValue("account_settings_" + accountName)) GM_setValue("account_settings_" + accountName, JSON.stringify(accountSettings));
+            
+
+           	var tempCharsSetting = JSON.parse( GM_getValue("chars_settings_" + accountName, "{}") ); 
+            if(!tempCharsSetting) {
+                console.log('Character settings couldn\'t be retrieved, loading defaults.');
+                tempCharsSetting = {};  
+            };
+            
+            charNameList = [];
+            client.dataModel.model.loginInfo.choices.forEach( function (char) {
+                if (char.name == "Author") return;
+                charNameList.push(char.name);
+                charSettingsTest[char.name] = $.extend(true, {}, defaultCharSettings, tempCharsSetting );
+                charSettingsTest[char.name].charName = char.name;  // for competabilty if charSettingsTest changed to simple array
+            });
+            if (JSON.stringify(charSettingsTest) !== GM_getValue("chars_settings_" + accountName)) GM_setValue("chars_settings_" + accountName, JSON.stringify(charSettingsTest));
+            /************/
             
             // load current character position and values
             charcurrent = GM_getValue("charcurrent", 0);
