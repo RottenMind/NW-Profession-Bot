@@ -1183,7 +1183,7 @@ function _select_Gateway() { // Check for Gateway used to
 					5 : ["Alchemy_Tier1_Experiment_Rank6", "Alchemy_Tier1_Experimentation_Rank5", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
 					6 : ["Alchemy_Tier1_Experiment_Rank7", "Alchemy_Tier1_Experimentation_Rank6", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
 					7 : ["Alchemy_Tier2_Experiment_Rank08", "Alchemy_Tier2_Experimentation_Rank07", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
-					8 : ["Alchemy_Tier2_Experiment_Rank09", "Alchemy_Tier2_Experimentation_Rank08" /, "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
+					8 : ["Alchemy_Tier2_Experiment_Rank09", "Alchemy_Tier2_Experimentation_Rank08" , "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
 					9 : ["Alchemy_Tier2_Experiment_Rank10", "Alchemy_Tier2_Experimentation_Rank09", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
 					10 : ["Alchemy_Tier2_Experiment_Rank11", "Alchemy_Tier2_Experimentation_Rank10", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
 					11 : ["Alchemy_Tier2_Experiment_Rank12", "Alchemy_Tier2_Experimentation_Rank11", "Alchemy_Tier1_Refine_Basic", "Alchemy_Tier1_Gather_Components"],
